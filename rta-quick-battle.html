@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>R-T-A Quick Battle</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&display=swap">
+<style>
+:root{--bg1:#e0e7ff;--bg2:#f5d0fe;--card:rgba(255,255,255,.9);--tx:#1e1b4b;--mu:#5b5780;--pr:#7c3aed;--pr2:#4f46e5;--ok:#16a34a;--no:#dc2626;--bd:#c4b5fd;--gold:#f59e0b;--glow:rgba(124,58,237,.4);--ac:rgba(250,204,21,.28);--star:transparent;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#0b1026;--bg2:#2a1458;--card:rgba(24,20,56,.88);--tx:#f5f3ff;--mu:#a9a6d6;--pr:#8b5cf6;--pr2:#6366f1;--bd:#4c3f8f;--glow:rgba(167,139,250,.55);--ac:rgba(250,204,21,.16);--star:#fff}}
+:root[data-theme="dark"]{--bg1:#0b1026;--bg2:#2a1458;--card:rgba(24,20,56,.88);--tx:#f5f3ff;--mu:#a9a6d6;--pr:#8b5cf6;--pr2:#6366f1;--bd:#4c3f8f;--glow:rgba(167,139,250,.55);--ac:rgba(250,204,21,.16);--star:#fff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--tx);font-family:"Kanit","Noto Sans Thai","Sarabun",system-ui,sans-serif;line-height:1.45;
+background:radial-gradient(900px 500px at 50% -5%,var(--bg2),transparent 70%),linear-gradient(180deg,var(--bg1),var(--bg2));background-color:var(--bg1)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;background-image:radial-gradient(2px 2px at 12% 20%,var(--star),transparent),radial-gradient(1.5px 1.5px at 70% 12%,var(--star),transparent),radial-gradient(2px 2px at 88% 60%,var(--star),transparent),radial-gradient(1.5px 1.5px at 30% 80%,var(--star),transparent),radial-gradient(2px 2px at 55% 45%,var(--star),transparent)}
+#app{position:relative;max-width:900px;margin:0 auto;padding:12px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.logo{font-weight:800;letter-spacing:.05em;font-size:1.15rem;text-shadow:0 0 14px var(--glow)}
+.lang{display:flex;gap:2px;background:var(--card);border:2px solid var(--bd);border-radius:999px;padding:3px;box-shadow:0 0 16px var(--glow)}
+.lang button{background:transparent;color:var(--tx);border:0;box-shadow:none;padding:4px 12px;border-radius:999px;font-size:.85rem}
+.lang button.on{background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff}
+.hero{text-align:center;margin:6px 0 4px}
+.ttl{margin:0;font-size:2.6rem;line-height:1;font-weight:800;letter-spacing:.06em;background:linear-gradient(180deg,#fde68a,#f59e0b 55%,#ef4444);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25)) drop-shadow(0 0 14px var(--glow))}
+.ttl small{font-size:1.2rem;letter-spacing:.3em;background:none;color:var(--tx);-webkit-text-fill-color:var(--tx)}
+.tag{font-weight:600;color:var(--pr);letter-spacing:.05em}
+h1{margin:0;font-size:1.3rem}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.clock{font-weight:800;font-size:1.3rem;background:var(--card);border:2px solid var(--gold);color:var(--gold);border-radius:12px;padding:2px 14px;box-shadow:0 0 14px rgba(245,158,11,.4)}
+.pls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pl{position:relative;background:var(--card);border:2px solid var(--bd);border-radius:16px;padding:10px;font-size:.85rem;backdrop-filter:blur(4px);transition:transform .2s}
+.pl.act{border-color:var(--gold);background:linear-gradient(180deg,var(--ac),var(--card));box-shadow:0 0 18px rgba(245,158,11,.5);animation:pulse 1.6s infinite}
+.pl.out{opacity:.35;filter:grayscale(1)}
+.pl.hit{animation:shake .45s}
+.pl h3{margin:0 0 4px;font-size:1rem;display:flex;align-items:center;gap:6px}
+.av{font-size:1.6rem;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.hpbar{position:relative;height:14px;background:rgba(0,0,0,.28);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin:4px 0}
+.hpbar i{display:block;height:100%;transition:width .5s}
+.hpbar::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 55%)}
+.fl{position:absolute;right:10px;top:4px;font-weight:800;font-size:1.5rem;color:#ef4444;text-shadow:0 0 6px #000;animation:fly 1.1s forwards;pointer-events:none}
+.bd{display:inline-block;margin-left:4px;filter:drop-shadow(0 0 5px var(--gold))}
+.hand{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;min-height:30px}
+button{font:inherit;cursor:pointer;border:0;border-bottom:4px solid rgba(0,0,0,.3);border-radius:12px;padding:9px 16px;background:linear-gradient(180deg,var(--pr),var(--pr2));color:#fff;font-weight:600;box-shadow:0 0 12px var(--glow);transition:transform .08s,filter .15s}
+button:hover:not(:disabled){filter:brightness(1.12)}
+button:active:not(:disabled){transform:translateY(3px);border-bottom-width:1px}
+button:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+button.sp{background:var(--card);color:var(--tx);border:2px solid var(--pr);padding:3px 8px;font-size:.8rem;box-shadow:none}
+button.ok{background:linear-gradient(180deg,#22c55e,var(--ok))}button.no{background:linear-gradient(180deg,#f87171,var(--no))}
+button.gh{background:var(--card);color:var(--tx);border:2px solid var(--bd);box-shadow:none}
+button.tg{padding:7px 12px;font-size:.9rem}button.tg.on{background:linear-gradient(180deg,#fbbf24,var(--gold));color:#3b2500}
+.stage{background:var(--card);border:2px solid var(--bd);border-radius:20px;padding:18px;margin:12px 0;text-align:center;box-shadow:0 0 24px var(--glow);backdrop-filter:blur(4px)}
+.vcard{max-width:420px;margin:8px auto;padding:14px 10px;border-radius:18px;border:3px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,#fbbf24,var(--pr),#22d3ee) border-box;box-shadow:0 0 22px var(--glow);animation:pop .35s}
+.word{font-size:2.8rem;font-weight:800;color:var(--pr);margin:2px 0;word-break:break-word;text-shadow:0 0 14px var(--glow)}
+.th{font-size:1.7rem;font-weight:700;min-height:2.4rem}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.tb{height:12px;background:rgba(0,0,0,.28);border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin:8px auto;max-width:380px}
+.tb i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,var(--pr));transition:width 1s linear}
+.tb i.low{background:linear-gradient(90deg,#f97316,#ef4444)}
+.big{font-size:1.5rem;font-weight:800;margin:4px 0}
+.acard{display:inline-flex;flex-direction:column;align-items:center;min-width:120px;padding:8px 16px;margin:8px;border-radius:14px;border:3px solid var(--gold);background:linear-gradient(160deg,var(--ac),var(--card));box-shadow:0 0 18px rgba(245,158,11,.5);animation:pop .4s}
+.acard .ai{font-size:2.2rem}.acard .an{font-weight:600}.acard .ad{font-size:1.8rem;font-weight:800;color:var(--gold)}
+.dice{display:inline-block;font-size:2.4rem;line-height:1;vertical-align:middle;animation:spin .7s}
+.trophy{font-size:3.5rem;animation:bounce 1s infinite}
+.mu{color:var(--mu);font-size:.85rem}
+.log{background:var(--card);border:2px solid var(--bd);border-radius:14px;padding:10px 14px;font-size:.85rem;color:var(--mu)}
+.log div{padding:1px 0}
+button.snd{padding:4px 10px;font-size:1rem;border-radius:999px}
+.aup{background:var(--card);border:2px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:10px;display:grid;gap:8px;box-shadow:0 0 16px var(--glow)}
+input[type=range]{padding:0;border:0;accent-color:var(--pr);background:transparent}
+input,select{font:inherit;padding:9px 12px;border:2px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);width:100%}
+.rules{text-align:left;font-size:.88rem;margin:12px auto;max-width:480px;line-height:1.8}
+@keyframes pulse{50%{box-shadow:0 0 28px rgba(245,158,11,.85)}}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@keyframes fly{to{transform:translateY(-34px);opacity:0}}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+@keyframes spin{from{transform:rotate(-540deg) scale(.4);opacity:0}}
+@keyframes bounce{50%{transform:translateY(-10px)}}
+@media (max-width:480px){.ttl{font-size:2.1rem}.word{font-size:2.2rem}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const VL={easy:[["apple","แอปเปิล"],["book","หนังสือ"],["cat","แมว"],["dog","สุนัข"],["egg","ไข่"],["fish","ปลา"],["girl","เด็กผู้หญิง"],["hat","หมวก"],["ice","น้ำแข็ง"],["juice","น้ำผลไม้"],["king","กษัตริย์"],["lion","สิงโต"],["milk","นม"],["nose","จมูก"],["orange","ส้ม"],["pen","ปากกา"],["queen","ราชินี"],["rain","ฝน"],["sun","ดวงอาทิตย์"],["tree","ต้นไม้"],["umbrella","ร่ม"],["van","รถตู้"],["water","น้ำ"],["yellow","สีเหลือง"],["zebra","ม้าลาย"],["bird","นก"],["chair","เก้าอี้"],["door","ประตู"],["eye","ตา"],["flower","ดอกไม้"],["green","สีเขียว"],["house","บ้าน"],["teacher","ครู"],["school","โรงเรียน"],["mother","แม่"],["father","พ่อ"],["happy","มีความสุข"],["big","ใหญ่"],["small","เล็ก"],["red","สีแดง"]],mid:[["banana","กล้วย"],["monkey","ลิง"],["rabbit","กระต่าย"],["pencil","ดินสอ"],["window","หน้าต่าง"],["table","โต๊ะ"],["bread","ขนมปัง"],["purple","สีม่วง"],["winter","ฤดูหนาว"],["summer","ฤดูร้อน"],["friend","เพื่อน"],["family","ครอบครัว"],["doctor","หมอ"],["market","ตลาด"],["garden","สวน"],["morning","ตอนเช้า"],["evening","ตอนเย็น"],["sister","พี่สาว/น้องสาว"],["brother","พี่ชาย/น้องชาย"],["computer","คอมพิวเตอร์"],["bicycle","จักรยาน"],["chicken","ไก่"],["cloud","เมฆ"],["music","ดนตรี"],["dance","เต้นรำ"],["sing","ร้องเพลง"],["swim","ว่ายน้ำ"],["jump","กระโดด"],["listen","ฟัง"],["draw","วาดรูป"],["cold","หนาว"],["hot","ร้อน"],["clean","สะอาด"],["dirty","สกปรก"],["fast","เร็ว"],["slow","ช้า"],["young","อ่อนวัย"],["old","แก่ / เก่า"],["strong","แข็งแรง"],["bridge","สะพาน"]],hard:[["library","ห้องสมุด"],["hospital","โรงพยาบาล"],["vegetable","ผัก"],["kitchen","ห้องครัว"],["neighbor","เพื่อนบ้าน"],["holiday","วันหยุด"],["weather","สภาพอากาศ"],["mountain","ภูเขา"],["elephant","ช้าง"],["dangerous","อันตราย"],["beautiful","สวยงาม"],["delicious","อร่อย"],["exercise","ออกกำลังกาย"],["breakfast","อาหารเช้า"],["birthday","วันเกิด"],["crowded","แออัด"],["medicine","ยา"],["airport","สนามบิน"],["yesterday","เมื่อวานนี้"],["tomorrow","พรุ่งนี้"],["travel","เดินทาง"],["borrow","ยืม"],["remember","จำได้"],["forget","ลืม"],["answer","คำตอบ"],["different","แตกต่าง"],["important","สำคัญ"],["dictionary","พจนานุกรม"],["envelope","ซองจดหมาย"],["calendar","ปฏิทิน"],["museum","พิพิธภัณฑ์"],["island","เกาะ"],["river","แม่น้ำ"],["forest","ป่า"],["customer","ลูกค้า"],["farmer","เกษตรกร"],["dentist","ทันตแพทย์"],["pharmacy","ร้านขายยา"],["surprise","ประหลาดใจ"],["experience","ประสบการณ์"]]};
+VL.easy.push(...[["park","สวนสาธารณะ"],["shop","ร้านค้า"],["farm","ฟาร์ม"],["zoo","สวนสัตว์"],["run","วิ่ง"],["eat","กิน"],["sleep","นอน"],["read","อ่าน"],["walk","เดิน"],["open","เปิด"],["moon","ดวงจันทร์"],["star","ดาว"]]);VL.mid.push(...[["horse","ม้า"],["tiger","เสือ"],["duck","เป็ด"],["rice","ข้าว"],["noodles","ก๋วยเตี๋ยว"],["chocolate","ช็อกโกแลต"],["sandwich","แซนด์วิช"],["beach","ชายหาด"],["station","สถานี"],["village","หมู่บ้าน"],["shoulder","ไหล่"],["knee","หัวเข่า"],["wind","ลม"],["snow","หิมะ"],["rainbow","สายรุ้ง"],["backpack","เป้สะพายหลัง"]]);VL.hard.push(...[["crocodile","จระเข้"],["butterfly","ผีเสื้อ"],["giraffe","ยีราฟ"],["kangaroo","จิงโจ้"],["dolphin","โลมา"],["strawberry","สตรอว์เบอร์รี"],["pineapple","สับปะรด"],["ingredient","ส่วนผสม"],["scientist","นักวิทยาศาสตร์"],["engineer","วิศวกร"],["volcano","ภูเขาไฟ"],["telescope","กล้องโทรทรรศน์"],["thermometer","เทอร์โมมิเตอร์"]]);
+VL.mix=[...VL.easy,...VL.mid,...VL.hard];
+const CAT={
+animals:"cat dog fish lion zebra bird monkey rabbit chicken horse tiger duck elephant crocodile butterfly giraffe kangaroo dolphin",
+food:"apple egg juice milk orange water banana bread rice noodles chocolate sandwich vegetable breakfast delicious strawberry pineapple ingredient",
+places:"house school park shop farm zoo market garden bridge beach station village library hospital kitchen airport museum pharmacy",
+verbs:"run eat sleep read walk open dance sing swim jump listen draw exercise travel borrow remember forget surprise",
+people:"girl king queen nose teacher mother father eye friend family doctor sister brother shoulder knee neighbor customer farmer dentist scientist engineer",
+nature:"rain sun tree flower ice moon star winter summer cloud wind snow rainbow weather mountain island river forest volcano",
+things:"book hat pen umbrella van chair door pencil window table computer bicycle backpack medicine dictionary envelope calendar telescope thermometer",
+desc:"yellow green red happy big small purple cold hot clean dirty fast slow young old strong morning evening dangerous beautiful crowded different important yesterday tomorrow holiday birthday answer"};
+for(const k in CAT)CAT[k]=CAT[k].split(" ");
+let V=VL.easy;
+const AT=[];const add=(n,d,i,c)=>{for(let k=0;k<c;k++)AT.push({n,d,i})};
+add("Attack",2,"⚔️",6);add("Strong Attack",3,"⚔️",4);add("Heavy Attack",4,"💥",3);add("Critical Attack",5,"🔥",2);
+const SPD={shield:["🛡️","Shield","ลดดาเมจครั้งถัดไป 2"],heal:["❤️","Heal","ฟื้น 2 HP"],double:["⚡","Double Attack","โจมตี 2 ครั้ง ครั้งละ 2"],counter:["🔄","Counter","ถูกตี ≥3 สะท้อนกลับ 2"]};
+const SPK=["shield","shield","heal","heal","double","counter"];
+const sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=id=>document.getElementById(id);
+CAT.waste=["pollution","environment","recycle","battery","tree","water","protect","planet"];
+const NW={
+m1:{
+waste:"biodegradable:ย่อยสลายได้|sustainable:ยั่งยืน|incinerator:เตาเผาขยะ|deforestation:การตัดไม้ทำลายป่า|greenhouse:เรือนกระจก|emission:การปล่อยก๊าซ|toxic:เป็นพิษ|contaminate:ปนเปื้อน|ecosystem:ระบบนิเวศ|extinction:การสูญพันธุ์|conservation:การอนุรักษ์|renewable:พลังงานทดแทน|microplastic:ไมโครพลาสติก|packaging:บรรจุภัณฑ์|disposable:ใช้แล้วทิ้ง|carbon:คาร์บอน|reforestation:การปลูกป่าทดแทน|sanitation:สุขาภิบาล",
+animals:"squirrel:กระรอก|hedgehog:เม่น|ostrich:นกกระจอกเทศ|penguin:เพนกวิน|peacock:นกยูง|octopus:ปลาหมึกยักษ์|jellyfish:แมงกะพรุน|lizard:กิ้งก่า|spider:แมงมุม|eagle:นกอินทรี|owl:นกฮูก|camel:อูฐ|buffalo:ควาย|turtle:เต่า|shark:ฉลาม|whale:วาฬ|rhinoceros:แรด|mosquito:ยุง",
+food:"cucumber:แตงกวา|pumpkin:ฟักทอง|garlic:กระเทียม|onion:หัวหอม|coconut:มะพร้าว|mushroom:เห็ด|pepper:พริกไทย|sausage:ไส้กรอก|dessert:ของหวาน|beverage:เครื่องดื่ม|cereal:ธัญพืช|lettuce:ผักกาดหอม|cabbage:กะหล่ำปลี|tomato:มะเขือเทศ|potato:มันฝรั่ง|vinegar:น้ำส้มสายชู|seafood:อาหารทะเล|barbecue:บาร์บีคิว",
+places:"supermarket:ซูเปอร์มาร์เก็ต|restaurant:ร้านอาหาร|bakery:ร้านเบเกอรี่|theater:โรงละคร|stadium:สนามกีฬา|factory:โรงงาน|harbor:ท่าเรือ|palace:พระราชวัง|castle:ปราสาท|desert:ทะเลทราย|cinema:โรงภาพยนตร์|hotel:โรงแรม|embassy:สถานทูต|university:มหาวิทยาลัย|playground:สนามเด็กเล่น|aquarium:พิพิธภัณฑ์สัตว์น้ำ|laboratory:ห้องทดลอง|gymnasium:โรงยิม",
+verbs:"celebrate:ฉลอง|describe:บรรยาย|explain:อธิบาย|discover:ค้นพบ|imagine:จินตนาการ|protect:ปกป้อง|practice:ฝึกฝน|collect:สะสม|decide:ตัดสินใจ|compare:เปรียบเทียบ|invite:เชิญ|arrive:มาถึง|prepare:เตรียม|believe:เชื่อ|promise:สัญญา|recycle:รีไซเคิล|improve:ปรับปรุง|complain:บ่น",
+people:"grandmother:ย่า/ยาย|grandfather:ปู่/ตา|cousin:ลูกพี่ลูกน้อง|uncle:ลุง/น้า/อา|aunt:ป้า/น้า/อา|forehead:หน้าผาก|eyebrow:คิ้ว|ankle:ข้อเท้า|wrist:ข้อมือ|elbow:ข้อศอก|throat:ลำคอ|brain:สมอง|muscle:กล้ามเนื้อ|skeleton:โครงกระดูก|pilot:นักบิน|firefighter:นักดับเพลิง|journalist:นักข่าว|mechanic:ช่างซ่อมเครื่องยนต์",
+nature:"thunder:ฟ้าร้อง|lightning:ฟ้าแลบ|earthquake:แผ่นดินไหว|flood:น้ำท่วม|drought:ภัยแล้ง|tornado:ทอร์นาโด|waterfall:น้ำตก|valley:หุบเขา|cliff:หน้าผา|coast:ชายฝั่ง|glacier:ธารน้ำแข็ง|temperature:อุณหภูมิ|pollution:มลพิษ|environment:สิ่งแวดล้อม|planet:ดาวเคราะห์|galaxy:ดาราจักร|sunrise:พระอาทิตย์ขึ้น|sunset:พระอาทิตย์ตก",
+things:"calculator:เครื่องคิดเลข|microscope:กล้องจุลทรรศน์|flashlight:ไฟฉาย|suitcase:กระเป๋าเดินทาง|passport:หนังสือเดินทาง|ticket:ตั๋ว|wallet:กระเป๋าสตางค์|necklace:สร้อยคอ|bracelet:กำไลข้อมือ|ladder:บันได|hammer:ค้อน|battery:แบตเตอรี่|screwdriver:ไขควง|blanket:ผ้าห่ม|mirror:กระจกเงา|keyboard:แป้นพิมพ์|printer:เครื่องพิมพ์|headphones:หูฟัง",
+desc:"comfortable:สบาย|terrible:แย่มาก|enormous:ใหญ่โต|expensive:แพง|generous:ใจกว้าง|honest:ซื่อสัตย์|patient:อดทน|polite:สุภาพ|curious:อยากรู้อยากเห็น|nervous:ประหม่า|exhausted:เหนื่อยล้ามาก|delighted:ดีใจมาก|ancient:โบราณ|modern:ทันสมัย|ordinary:ธรรมดา|brilliant:ยอดเยี่ยม|fortunately:โชคดีที่|suddenly:ทันใดนั้น"},
+easy:{waste:"trash:ขยะ|bin:ถังขยะ|bottle:ขวด|paper:กระดาษ|plastic:พลาสติก|can:กระป๋อง|glass:แก้ว|waste:ของเสีย",animals:"pig:หมู|cow:วัว|frog:กบ",food:"cake:เค้ก|candy:ลูกอม|soup:ซุป",places:"room:ห้อง|temple:วัด|street:ถนน",verbs:"sit:นั่ง|stand:ยืน|drink:ดื่ม",people:"boy:เด็กผู้ชาย|baby:ทารก|hand:มือ",nature:"sky:ท้องฟ้า|sea:ทะเล|grass:หญ้า",things:"bag:กระเป๋า|cup:ถ้วย|box:กล่อง",desc:"blue:สีฟ้า/น้ำเงิน|black:สีดำ|white:สีขาว"},
+mid:{waste:"reuse:ใช้ซ้ำ|reduce:ลดการใช้|litter:ทิ้งขยะเรี่ยราด|garbage:ขยะมูลฝอย|compost:ปุ๋ยหมัก|cardboard:กระดาษแข็ง|aluminum:อะลูมิเนียม|sort:คัดแยก",animals:"snake:งู|bear:หมี|sheep:แกะ",food:"pizza:พิซซ่า|salad:สลัด|butter:เนย",places:"office:สำนักงาน|bank:ธนาคาร|bedroom:ห้องนอน",verbs:"cook:ทำอาหาร|cry:ร้องไห้|laugh:หัวเราะ",people:"police:ตำรวจ|driver:คนขับรถ|student:นักเรียน",nature:"lake:ทะเลสาบ|rock:หิน|wave:คลื่น",things:"phone:โทรศัพท์|camera:กล้องถ่ายรูป|clock:นาฬิกา",desc:"heavy:หนัก|quiet:เงียบ|angry:โกรธ"},
+hard:{waste:"landfill:หลุมฝังกลบ|pollute:ทำให้เป็นมลพิษ|conserve:อนุรักษ์|hazardous:เป็นอันตราย|electricity:ไฟฟ้า|resource:ทรัพยากร|wildlife:สัตว์ป่า|endangered:ใกล้สูญพันธุ์",animals:"parrot:นกแก้ว|crab:ปู|insect:แมลง",food:"lemonade:น้ำมะนาว|spaghetti:สปาเก็ตตี้|hamburger:แฮมเบอร์เกอร์",places:"bookstore:ร้านหนังสือ|dormitory:หอพัก|cafeteria:โรงอาหาร",verbs:"prefer:ชอบมากกว่า|invent:ประดิษฐ์|refuse:ปฏิเสธ",people:"relative:ญาติ|stranger:คนแปลกหน้า|musician:นักดนตรี",nature:"storm:พายุ|ocean:มหาสมุทร|season:ฤดูกาล",things:"elevator:ลิฟต์|lantern:โคมไฟ|treasure:สมบัติ",desc:"careful:ระมัดระวัง|familiar:คุ้นเคย|impossible:เป็นไปไม่ได้"}};
+for(const l in NW)for(const c in NW[l])for(const x of NW[l][c].split("|")){const i=x.indexOf(":");(VL[l]=VL[l]||[]).push([x.slice(0,i),x.slice(i+1)]);CAT[c].push(x.slice(0,i))}
+VL.mix=[...VL.easy,...VL.mid,...VL.hard,...VL.m1];
+const PAD={easy:["mid","hard","m1"],mid:["easy","hard","m1"],hard:["m1","mid","easy"],m1:["hard","mid","easy"]};
+let MAXHP=25;
+const AV=["🧙","🥷","🦸","🧝","🐉","🦊"],DICE=["⚀","⚁","⚂","⚃","⚄","⚅"];
+const CTS=[["all","🌍 ทุกหมวดหมู่","🌍 All categories"],["animals","🐾 สัตว์","🐾 Animals"],["food","🍎 อาหารและเครื่องดื่ม","🍎 Food & drinks"],["places","🏠 สถานที่","🏠 Places"],["verbs","🏃 กริยา / กิจกรรม","🏃 Verbs / activities"],["people","👨‍👩‍👧 คนและร่างกาย","👨‍👩‍👧 People & body"],["nature","🌦️ ธรรมชาติและอากาศ","🌦️ Nature & weather"],["waste","♻️ ขยะและการอนุรักษ์สิ่งแวดล้อม","♻️ Waste & environmental conservation"],["things","🎒 สิ่งของ","🎒 Things"],["desc","🎨 สี / คำบอกลักษณะ / เวลา","🎨 Colors / adjectives / time"]];
+const LVS=[["easy","📗 คำศัพท์ง่าย (พื้นฐาน)","📗 Easy (basic)"],["mid","📘 คำศัพท์กลาง","📘 Medium"],["hard","📕 คำศัพท์ยาก","📕 Hard"],["m1","🎓 ระดับ ม.1 (ยากมาก)","🎓 Grade 7 (very hard)"],["mix","🌈 ผสมทุกระดับ (รวม ม.1)","🌈 Mixed (all levels)"]];
+const PZS=[["0","🧩 ไม่มีคำเติมตัวอักษร","🧩 No missing-letter words"],["0.3","🧩 เติมตัวอักษร 30% ของคำ","🧩 Missing letters: 30% of words"],["0.6","🧩 เติมตัวอักษร 60% ของคำ","🧩 Missing letters: 60% of words"],["1","🧩 เติมตัวอักษรทุกคำ (100%)","🧩 Missing letters: every word (100%)"]];
+const HH={15:["สั้นมาก","very short"],25:["แนะนำ","recommended"],50:["ยาวมาก","very long"]};
+const SPT={th:{shield:"ลดดาเมจครั้งถัดไป 2",heal:"ฟื้น 2 HP",double:"โจมตี 2 ครั้ง ครั้งละ 2",counter:"ถูกตี ≥3 สะท้อนกลับ 2"},en:{shield:"Blocks 2 damage from the next hit",heal:"Restore 2 HP",double:"Attack twice, 2 damage each",counter:"If hit for 3+, reflect 2 damage"}};
+let LG="th";try{LG=localStorage.getItem("rta-lang")==="en"?"en":"th"}catch(e){}
+const T={
+sub:["เกมคำศัพท์ภาษาอังกฤษ · ต้องมีกรรมการคอยตัดสินคำตอบ","English vocabulary battle · a referee judges the answers"],
+n:[n=>`👥 ${n} ผู้เล่น`,n=>`👥 ${n} players`],
+tm:[v=>`⏱️ เวลาเล่น ${v} นาที`,v=>`⏱️ Game time: ${v} min`],
+min:["นาที","min"],padn:["เติมคำจากระดับใกล้เคียง","filled with nearby-level words"],
+rules:["⏱️ เลือกเวลาได้ · 1️⃣ จั่วคำศัพท์ 2️⃣ อ่าน+แปลใน 10 วิ 3️⃣ ถูก = เลือกเป้าหมาย + จั่ว Attack (2–5) + 🎲 โบนัส 4️⃣ ผิด = จบเทิร์น<br>🔥 ถูกติด 2 ครั้ง +1 · 3 ครั้ง +2 · 4 ครั้ง ได้ Special Card<br>⭐ Shield ×2 · Heal ×2 · Double ×1 · Counter ×1<br>👥 เล่นหลายคน: HP เป็น 0 = ตกรอบ ผู้รอดคนสุดท้ายชนะ (หมดเวลา = HP มากสุดชนะ)","⏱️ Choose the game time · 1️⃣ Draw a word 2️⃣ Read + translate in 10 s 3️⃣ Correct = pick a target + draw an Attack card (2–5) + 🎲 bonus 4️⃣ Wrong = turn ends<br>🔥 2 correct in a row +1 · 3 in a row +2 · 4 in a row = a Special Card<br>⭐ Shield ×2 · Heal ×2 · Double ×1 · Counter ×1<br>👥 Multiplayer: 0 HP = out, last player standing wins (time's up = most HP wins)"],
+next:["ถัดไป: ใส่ชื่อผู้เล่น ▶","Next: enter names ▶"],namesH:["👥 ใส่ชื่อผู้เล่น","👥 Enter player names"],back:["◀ กลับ","◀ Back"],start:["▶ เริ่มเกม","▶ Start game"],
+pn:[i=>`ผู้เล่น ${i}`,i=>`Player ${i}`],nph:[i=>`ชื่อผู้เล่น ${i}`,i=>`Player ${i} name`],
+turn:[n=>`ตาของ ${n}`,n=>`${n}'s turn`],sdq:["Sudden Death: ตอบคนละ 1 คำ","Sudden Death: one word each"],
+draw:["🃏 จั่ว Vocabulary Card","🃏 Draw a Vocabulary Card"],sph:["ใช้ Special ได้ก่อนจั่ว (ปุ่มที่การ์ดผู้เล่น)","You can use a Special before drawing (buttons on your player card)"],
+s2:[(n,z)=>`STEP 2 — ${n} ${z?"🧩 เติมตัวอักษรที่หายไป + อ่าน + แปล (ถูก +1 ดาเมจ)":"อ่านออกเสียง + แปลไทย"}`,(n,z)=>`STEP 2 — ${n}: ${z?"🧩 fill in the missing letters, read & translate to Thai (+1 damage)":"read aloud & translate to Thai"}`],
+sec:["วินาที","sec"],listen:["🔊 ฟังเสียง","🔊 Listen"],rev:["👁️ เฉลย (กรรมการ)","👁️ Answer (referee)"],ok:["✅ ถูก","✅ Correct"],no:["❌ ผิด","❌ Wrong"],
+corr:[c=>`✅ ตอบถูก! Combo ${c}`,c=>`✅ Correct! Combo ${c}`],bon:[b=>`โบนัสรวม +${b} ดาเมจ`,b=>`Total bonus +${b} damage`],
+pick:["🎯 เลือกเป้าหมาย","🎯 Choose a target"],tg:[n=>`🎯 เป้าหมาย: ${n}`,n=>`🎯 Target: ${n}`],
+datk:["⚔️ จั่ว Attack Card + 🎲","⚔️ Draw Attack Card + 🎲"],dh:["มี ⚡ Double Attack? กดที่การ์ดผู้เล่นเพื่อใช้แทน","Have ⚡ Double Attack? Use it from your player card instead"],
+endt:["จบเทิร์น ▶ (STEP 4)","End turn ▶ (STEP 4)"],win:[n=>`${n} ชนะ!`,n=>`${n} wins!`],again:["เล่นอีกครั้ง","Play again"],
+nosp:["ไม่มี Special","No specials"],cmb:[(c,b)=>`🔥 Combo ${c}/4 · สูงสุด ${b}`,(c,b)=>`🔥 Combo ${c}/4 · best ${b}`],
+roll:[(d,x,b)=>`ทอยได้ ${d} → +${x}${b?` · 🔥 โบนัส +${b}`:""}`,(d,x,b)=>`rolled ${d} → +${x}${b?` · 🔥 bonus +${b}`:""}`],tot:["รวม","Total"],h1:["ครั้งที่ 1:","Hit 1:"],h2:["ครั้งที่ 2:","Hit 2:"],
+hit:[h=>h.none?"— (เป้าหมายตกรอบแล้ว)":`${h.d} ดาเมจ${h.red?` 🛡️ลด→${h.d}`:""}${h.cn?` 🔄 ${h.cn} สะท้อนกลับ 2!`:""}`,h=>h.none?"— (target already out)":`${h.d} damage${h.red?` 🛡️reduced→${h.d}`:""}${h.cn?` 🔄 ${h.cn} reflected 2!`:""}`],
+w_sd:["ชนะใน Sudden Death","won in Sudden Death"],w_last:["เป็นผู้รอดคนสุดท้าย","last player standing"],w_hp:["หมดเวลา — HP มากที่สุด","time's up — most HP"],w_tie:["หมดเวลา HP เท่ากัน","time's up, HP tied"],w_sim:["HP เป็น 0 พร้อมกัน","reached 0 HP at the same time"],w_combo:["Combo สูงกว่า","higher best Combo"],
+l_start:["เกมเริ่ม! Read → Translate → Attack!","Game on! Read → Translate → Attack!"],l_t10:["⏰ หมดเวลา 10 วิ","⏰ 10 seconds up"],l_time:["⏰ หมดเวลาเกม!","⏰ Time's up!"],
+l_sdr:[(n,o)=>`${n}: ${o?"✅ ถูก":"❌ ผิด"} (Sudden Death)`,(n,o)=>`${n}: ${o?"✅ correct":"❌ wrong"} (Sudden Death)`],l_sdt:["เสมอ! ทำ Sudden Death ใหม่","Tie! Sudden Death again"],l_sdg:["เสมอทุกอย่าง → Sudden Death!","Still tied → Sudden Death!"],
+l_no:[n=>`${n} ตอบผิด ❌ Combo รีเซ็ต จบเทิร์น`,n=>`${n} answered wrong ❌ Combo reset, turn ends`],
+l_ok:[(n,c)=>`${n} ตอบถูก ✅${c==="none"?" (Special Card หมดแล้ว)":c?` ได้การ์ด ${SPD[c][0]} ${SPD[c][1]}!`:""}`,(n,c)=>`${n} answered correctly ✅${c==="none"?" (no Special Cards left)":c?` and got ${SPD[c][0]} ${SPD[c][1]}!`:""}`],
+l_atk:[(n,c,t,h)=>`${n} ใช้ ${c} ใส่ ${t} รวม ${T.hit[0](h)}`,(n,c,t,h)=>`${n} used ${c} on ${t}: ${T.hit[1](h)}`],l_dbl:[(n,t)=>`${n} ใช้ Double Attack ใส่ ${t}!`,(n,t)=>`${n} used Double Attack on ${t}!`],
+l_out:[n=>`💀 ${n} ตกรอบ`,n=>`💀 ${n} is out`],l_sh:[n=>`${n} ใช้ 🛡️ Shield`,n=>`${n} used 🛡️ Shield`],l_he:[n=>`${n} ใช้ ❤️ Heal +2`,n=>`${n} used ❤️ Heal +2`],l_co:[n=>`${n} ตั้ง 🔄 Counter`,n=>`${n} set 🔄 Counter`]
+};
+Object.assign(T,{snd:["🎵 เสียง","🎵 Sound"],off:["🔇 ปิดเสียงดนตรี","🔇 Music off"],t1:["🏴‍☠️ ผจญภัยทะเลหลวง (เพลงต้นฉบับ)","🏴‍☠️ High Seas Adventure (original)"],t2:["🪄 ปราสาทเวทมนตร์ (เพลงต้นฉบับ)","🪄 Magic Castle (original)"],t3:["📁 ไฟล์เสียงของฉัน...","📁 My own audio file..."],vm:["ระดับเสียงดนตรี","Music volume"],vs:["ระดับเสียงเอฟเฟกต์","Effects volume"],anote:["เพลงเป็นเพลงต้นฉบับสไตล์ผจญภัย/เวทมนตร์ (ไม่ใช่เพลงจริงจากภาพยนตร์) เล่นวนซ้ำอัตโนมัติ","Original adventure / magic-style tracks (not the actual movie themes), looping automatically"]});
+const t=(k,...a)=>{const v=T[k][LG==="en"?1:0];return typeof v==="function"?v(...a):v};
+const L=x=>x[LG==="en"?2:1];
+let G={phase:"intro"},CFG={n:2,hp:25,lv:"mid",ct:"all",pz:"0.3",time:15,names:[]},timer=null;
+const opt=(v,tx,c)=>`<option value="${v}" ${String(v)===String(c)?"selected":""}>${tx}</option>`;
+const alive=()=>G.p.map((p,i)=>i).filter(i=>!G.p[i].out);
+const me=()=>G.p[G.turn];
+function setLang(l){if(G.phase==="intro")readCfg();else if(G.phase==="names")saveNames();LG=l;try{localStorage.setItem("rta-lang",l)}catch(e){}document.documentElement.lang=l;render()}
+function infoStr(c){return `${L(CTS.find(x=>x[0]===c.ct))} · ${L(LVS.find(x=>x[0]===c.lv))} · ❤️ ${c.hp} HP · 👥 ${c.n} · ⏱️ ${c.time} ${t("min")}${c.pad?" · ⚠️ "+t("padn"):""}`}
+function readCfg(){CFG.n=+$("n").value;CFG.hp=+$("hpx").value;CFG.ct=$("ct").value;CFG.lv=$("lv").value;CFG.pz=$("pz").value;CFG.time=+$("tm").value}
+function toNames(){readCfg();G={phase:"names"};render()}
+function saveNames(){CFG.names=[...Array(CFG.n)].map((_,i)=>$("pn"+i).value.trim())}
+function back(){saveNames();G={phase:"intro"};render()}
+function go(){saveNames();newGame(CFG.names.map((v,i)=>v||t("pn",i+1)))}
+function mask(w){const n=w.length,k=n<=4?1:n<=7?2:3;const pick=sh([...Array(n-1).keys()].map(i=>i+1)).slice(0,k);return [...w].map((c,i)=>pick.includes(i)?'_':c).join(' ')}
+function newGame(names){
+  const inCat=w=>CFG.ct==="all"||!CAT[CFG.ct]||CAT[CFG.ct].includes(w[0]);
+  let pool=(VL[CFG.lv]||VL.easy).filter(inCat);
+  if(pool.length<4)pool=[...(VL[CFG.lv]||VL.easy)];
+  const need=Math.min(80,names.length*Math.ceil(CFG.hp/5)+10),base=pool.length;let pad=false;
+  if(pool.length<need&&PAD[CFG.lv]){const seen=new Set(pool.map(w=>w[0]));
+    for(const l of PAD[CFG.lv])for(const w of VL[l]){if(pool.length>=need)break;if(inCat(w)&&!seen.has(w[0])){pool.push(w);seen.add(w[0])}}
+    pad=pool.length>base}
+  V=pool;MAXHP=CFG.hp;
+  G={phase:"start",turn:0,left:CFG.time*60,tl:10,sd:false,sdp:[],sdi:0,sdr:[],log:[],res:null,fx:null,rev:false,word:null,pz:null,pzRate:+CFG.pz,bonus:0,target:1,win:null,why:[],dealt:0,recoil:0,
+   cfg:{ct:CFG.ct,lv:CFG.lv,hp:CFG.hp,n:names.length,time:CFG.time,pad},
+   p:names.map(n=>({name:n,hp:MAXHP,combo:0,best:0,shield:false,counter:false,hand:[],out:false})),vd:sh(V),ad:sh(AT),sd_:sh(SPK)};
+  log("l_start");clearInterval(timer);timer=setInterval(tick,1000);render();
+}
+function log(k,...a){G.log.unshift([k,a]);G.log=G.log.slice(0,8)}
+function tick(){
+  if(["over","intro","names"].includes(G.phase))return;
+  if(!G.sd){G.left--;if(G.left<=0){timeUp();return}}
+  if(G.phase==="word"){G.tl--;if(G.tl<=0){log("l_t10");judge(false);return}}
+  clock();
+}
+function clock(){
+  const g=$("gt");if(g)g.textContent=G.sd?"Sudden Death":"⏱️ "+String(G.left/60|0).padStart(2,"0")+":"+String(G.left%60).padStart(2,"0");
+  const w=$("wt");if(w){w.style.width=Math.max(0,G.tl)*10+"%";w.classList.toggle("low",G.tl<=3)}
+  const x=$("wn");if(x)x.textContent=Math.max(0,G.tl)+" "+t("sec");
+}
+function drawWord(){
+  if(!G.vd.length){G.vd=sh(V);const n=G.vd.length;if(n>1&&G.vd[n-1]===G.word)G.vd.unshift(G.vd.pop())}
+  G.word=G.vd.pop();G.pz=Math.random()<G.pzRate?mask(G.word[0]):null;G.tl=10;G.rev=false;G.phase="word";render();
+}
+function speak(){try{const u=new SpeechSynthesisUtterance(G.word[0]);u.lang="en-US";speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function reveal(){G.rev=true;render()}
+function judge(ok){
+  if(G.phase!=="word")return;
+  const p=me();
+  if(G.sd){
+    G.sdr.push(ok);log("l_sdr",p.name,ok);sfx(ok?"ok":"no");
+    if(G.sdi<G.sdp.length-1){G.sdi++;G.turn=G.sdp[G.sdi];G.phase="start";render();return}
+    const good=G.sdp.filter((_,i)=>G.sdr[i]);
+    if(good.length===1){finish(good[0],["w_sd"]);return}
+    if(good.length>0&&good.length<G.sdp.length)G.sdp=good;else log("l_sdt");
+    G.sdi=0;G.sdr=[];G.turn=G.sdp[0];G.phase="start";render();return;
+  }
+  if(!ok){p.combo=0;log("l_no",p.name);sfx("no");endTurn();return}
+  p.combo++;p.best=Math.max(p.best,p.combo);sfx("ok");
+  G.bonus=(p.combo===2?1:p.combo===3?2:0)+(G.pz?1:0);
+  let card=null;
+  if(p.combo===4){p.combo=0;if(G.sd_.length){card=G.sd_.pop();p.hand.push(card)}else card="none"}
+  log("l_ok",p.name,card);
+  G.target=alive().find(i=>i!==G.turn);
+  G.phase="attack";render();
+}
+function setT(i){G.target=i;render()}
+function dmgTo(d){
+  const o=G.p[G.target],m=me();
+  if(o.hp<=0)return{none:1,d:0};
+  const raw=d,h={d,red:false,cn:null};
+  if(o.shield){d=Math.max(0,d-2);o.shield=false;h.red=true;h.d=d}
+  o.hp=Math.max(0,o.hp-d);G.dealt+=d;
+  if(raw>=3&&o.counter){o.counter=false;m.hp=Math.max(0,m.hp-2);G.recoil=2;h.cn=o.name}
+  return h;
+}
+function attack(){
+  if(!G.ad.length)G.ad=sh(AT);
+  const c=G.ad.pop(),d=1+(Math.random()*6|0),db=d<=2?0:d<=4?1:d===5?2:3;
+  G.dealt=0;G.recoil=0;
+  const tn=G.p[G.target].name,h=dmgTo(c.d+db+G.bonus);sfx("hit");
+  G.res={k:"atk",t:tn,c,d,db,b:G.bonus,h};
+  log("l_atk",me().name,c.n,tn,h);afterHit();
+}
+function doubleAtk(){
+  G.dealt=0;G.recoil=0;
+  const tn=G.p[G.target].name,a=dmgTo(2+G.bonus),b=dmgTo(2);sfx("hit");
+  G.res={k:"dbl",t:tn,a,b};log("l_dbl",me().name,tn);afterHit();
+}
+function afterHit(){
+  G.fx={t:G.target,d:G.dealt,a:G.recoil?G.turn:-1};
+  const dead=[];
+  G.p.forEach((p,i)=>{if(!p.out&&p.hp<=0){p.out=true;dead.push(i);log("l_out",p.name)}});
+  const al=alive();
+  if(al.length===1){finish(al[0],["w_last"]);return}
+  if(al.length===0){dead.forEach(i=>G.p[i].out=false);tieBreak("w_sim",dead);return}
+  G.phase="result";render();
+}
+function endTurn(){
+  let x=G.turn;do{x=(x+1)%G.p.length}while(G.p[x].out);
+  G.turn=x;G.phase="start";G.bonus=0;G.fx=null;render();
+}
+function useSp(i){
+  const p=me(),k=p.hand[i];
+  if(!(G.phase==="start"||G.phase==="attack")||G.sd)return;
+  if(k==="double"){if(G.phase!=="attack")return;p.hand.splice(i,1);doubleAtk();return}
+  p.hand.splice(i,1);
+  sfx("sp");if(k==="shield"){p.shield=true;log("l_sh",p.name)}
+  if(k==="heal"){p.hp=Math.min(MAXHP,p.hp+2);log("l_he",p.name)}
+  if(k==="counter"){p.counter=true;log("l_co",p.name)}
+  render();
+}
+function timeUp(){
+  log("l_time");
+  const al=alive(),mx=Math.max(...al.map(i=>G.p[i].hp)),c=al.filter(i=>G.p[i].hp===mx);
+  if(c.length===1)return finish(c[0],["w_hp"]);
+  tieBreak("w_tie",c);
+}
+function tieBreak(why,c){
+  const mb=Math.max(...c.map(i=>G.p[i].best)),c2=c.filter(i=>G.p[i].best===mb);
+  if(c2.length===1)return finish(c2[0],[why,"w_combo"]);
+  log("l_sdg");
+  G.sd=true;G.sdp=c2;G.sdi=0;G.sdr=[];G.turn=c2[0];G.phase="start";G.left=0;render();
+}
+function finish(w,why){sfx("win");G.phase="over";G.win=w;G.why=why;clearInterval(timer);render()}
+function again(){clearInterval(timer);G={phase:"intro"};render()}
+function fmtHit(h){return t("hit",h)}
+function resHtml(){
+  const r=G.res;if(!r)return "";
+  const tl=`<div class="mu">${esc(t("tg",r.t))}</div>`;
+  if(r.k==="atk")return `${tl}<div class="acard"><div class="ai">${r.c.i}</div><div class="an">${r.c.n}</div><div class="ad">${r.c.d}</div></div><div><span class="dice">${DICE[r.d-1]}</span> ${esc(t("roll",r.d,r.db,r.b))}</div><div class="big">${t("tot")} ${esc(fmtHit(r.h))}</div>`;
+  return `${tl}<div class="big">⚡ Double Attack</div><div>${t("h1")} ${esc(fmtHit(r.a))}</div><div>${t("h2")} ${esc(fmtHit(r.b))}</div>`;
+}
+const AU={ctx:null,mg:null,sg:null,nb:null,track:"0",mv:.5,sv:.7,timer:null,step:0,next:0,el:null,playing:false,open:false};
+try{const o=JSON.parse(localStorage.getItem("rta-au")||"{}");if(["0","1","2"].includes(o.track))AU.track=o.track;if(o.mv>=0&&o.mv<=1)AU.mv=o.mv;if(o.sv>=0&&o.sv<=1)AU.sv=o.sv}catch(e){}
+const F=m=>440*Math.pow(2,(m-69)/12);
+function ensureCtx(){
+  if(!AU.ctx){AU.ctx=new(window.AudioContext||window.webkitAudioContext)();AU.mg=AU.ctx.createGain();AU.sg=AU.ctx.createGain();AU.mg.connect(AU.ctx.destination);AU.sg.connect(AU.ctx.destination)}
+  AU.mg.gain.value=AU.mv*.8;AU.sg.gain.value=AU.sv;if(AU.ctx.resume)AU.ctx.resume();
+}
+function tone(t0,m,dur,type,vol,o={}){
+  const c=AU.ctx,os=c.createOscillator(),g=c.createGain();os.type=type;os.frequency.value=F(m);
+  let n=os;if(o.lp){const f=c.createBiquadFilter();f.type="lowpass";f.frequency.value=o.lp;os.connect(f);n=f}
+  const a=o.att||.01;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+a);
+  if(o.decay)g.gain.exponentialRampToValueAtTime(.0001,t0+dur);else{g.gain.setValueAtTime(vol,t0+Math.max(a,dur-.06));g.gain.linearRampToValueAtTime(0,t0+dur)}
+  n.connect(g);g.connect(o.dest||AU.mg);os.start(t0);os.stop(t0+dur+.05);
+}
+function bell(t0,m,dur,vol,dest){tone(t0,m,dur,"triangle",vol,{decay:1,dest});tone(t0,m+19,dur*.6,"sine",vol*.25,{decay:1,dest})}
+function noise(t0,dur,vol,type,freq,dest){
+  const c=AU.ctx;if(!AU.nb){const b=c.createBuffer(1,c.sampleRate,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;AU.nb=b}
+  const s=c.createBufferSource();s.buffer=AU.nb;const f=c.createBiquadFilter();f.type=type;f.frequency.value=freq;const g=c.createGain();
+  g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);s.connect(f);f.connect(g);g.connect(dest||AU.mg);s.start(t0);s.stop(t0+dur);
+}
+function kick(t0,vol,dest){const c=AU.ctx,o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(140,t0);o.frequency.exponentialRampToValueAtTime(40,t0+.18);g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+.3);o.connect(g);g.connect(dest||AU.mg);o.start(t0);o.stop(t0+.32)}
+const mel=bars=>{const M={};bars.forEach((b,i)=>b.forEach(([s,n,l])=>M[i*6+s]=[n,l]));return M};
+/* Track 1: original high-seas adventure (D minor, 6/8) */
+const M1=mel([[[0,69,1],[1,74,1],[2,77,1],[3,76,2],[5,74,1]],[[0,72,1],[1,74,1],[2,72,1],[3,69,3]],[[0,70,1],[1,74,1],[2,77,1],[3,79,2],[5,77,1]],[[0,76,1],[1,79,1],[2,76,1],[3,72,3]],[[0,74,1],[1,77,1],[2,81,1],[3,79,2],[5,77,1]],[[0,74,1],[1,70,1],[2,74,1],[3,79,3]],[[0,73,1],[1,76,1],[2,81,1],[3,80,1],[4,81,1],[5,76,1]],[[0,74,3],[3,77,2],[5,76,1]]]);
+const C1=[[62,65,69],[62,65,69],[58,62,65],[60,64,67],[62,65,69],[58,62,67],[57,61,64],[62,65,69]],B1=[38,38,34,36,38,31,33,38];
+/* Track 2: original magic-castle waltz (F# minor, 3/4) */
+const M2=mel([[[0,66,1],[1,69,1],[2,73,2],[4,71,1],[5,69,1]],[[0,66,1],[1,69,1],[2,73,2],[4,78,2]],[[0,74,1],[1,78,1],[2,81,2],[4,78,1],[5,74,1]],[[0,71,1],[1,74,1],[2,78,2],[4,76,1],[5,74,1]],[[0,73,1],[1,76,1],[2,78,2],[4,81,2]],[[0,73,1],[1,77,1],[2,80,2],[4,77,1],[5,73,1]],[[0,74,1],[1,78,1],[2,74,2],[4,71,2]],[[0,73,3],[3,69,3]]]);
+const C2=[[54,57,61],[54,57,61],[50,54,57],[47,50,54],[54,57,61],[49,53,56],[50,54,57],[54,57,61]],AP=[0,1,2,3,2,1];
+const TR={
+"1":{d:.17,len:48,play(s,t0,d){
+  const b=s/6|0,p=s%6;
+  if(p===0)C1[b].forEach(n=>tone(t0,n,d*6,"sawtooth",.035,{lp:900,att:.1}));
+  if(p===0||p===3)tone(t0,B1[b]+(p===3?7:0),d*2.4,"triangle",.3);
+  if(p===0)kick(t0,.8);
+  if(p===3){noise(t0,.14,.35,"bandpass",1800);kick(t0,.35)}
+  if(b===7&&p>=4)kick(t0,.5);
+  noise(t0,.04,.06,"highpass",7000);
+  const m=M1[s];if(m)tone(t0,m[0],m[1]*d*.95,"sawtooth",.12,{lp:2600,att:.02});
+}},
+"2":{d:.3,len:48,play(s,t0,d){
+  const b=s/6|0,p=s%6,c=C2[b];
+  if(p===0){c.forEach(n=>tone(t0,n+12,d*6,"sine",.05,{att:.4}));tone(t0,c[0]-12,d*3,"sine",.22,{att:.03})}
+  bell(t0,c[AP[p]]+24,d*3,.11);
+  const m=M2[s];if(m)bell(t0,m[0],m[1]*d*2,.2);
+}}};
+function sched(){const T_=TR[AU.track];if(!T_||!AU.ctx)return;while(AU.next<AU.ctx.currentTime+.4){T_.play(AU.step%T_.len,AU.next,T_.d);AU.next+=T_.d;AU.step++}}
+function stopMusic(){clearInterval(AU.timer);AU.timer=null;if(AU.el)AU.el.pause();AU.playing=false}
+function startMusic(){
+  stopMusic();
+  if(AU.track==="own"){if(AU.el){AU.el.volume=AU.mv;AU.el.play().catch(()=>{});AU.playing=true}return}
+  if(!TR[AU.track])return;
+  ensureCtx();AU.step=0;AU.next=AU.ctx.currentTime+.1;AU.timer=setInterval(sched,100);sched();AU.playing=true;
+}
+function saveAu(){try{localStorage.setItem("rta-au",JSON.stringify({track:AU.track==="own"?"0":AU.track,mv:AU.mv,sv:AU.sv}))}catch(e){}}
+function setTrack(v){AU.track=v;saveAu();if(v==="0"||v==="own")stopMusic();if(v==="1"||v==="2")startMusic();render()}
+function ownFile(inp){const f=inp.files&&inp.files[0];if(!f)return;if(AU.el)AU.el.pause();AU.el=new Audio(URL.createObjectURL(f));AU.el.loop=true;startMusic();render()}
+function setMv(v){AU.mv=+v;if(AU.mg)AU.mg.gain.value=AU.mv*.8;if(AU.el)AU.el.volume=AU.mv}
+function setSv(v){AU.sv=+v;if(AU.sg)AU.sg.gain.value=AU.sv}
+function togAu(){AU.open=!AU.open;render()}
+function sfx(k){
+  if(AU.sv<=0)return;
+  try{ensureCtx();const c=AU.ctx,n=c.currentTime+.01,d=AU.sg;
+  if(k==="ok"){bell(n,84,.5,.25,d);bell(n+.11,91,.7,.25,d)}
+  if(k==="no"){tone(n,45,.35,"sawtooth",.25,{lp:400,dest:d});tone(n+.12,40,.3,"sawtooth",.22,{lp:400,dest:d})}
+  if(k==="hit"){kick(n,.9,d);noise(n,.25,.5,"lowpass",1500,d)}
+  if(k==="sp"){[88,93,97].forEach((m,i)=>bell(n+i*.07,m,.5,.2,d))}
+  if(k==="win"){[72,76,79,84,88,91].forEach((m,i)=>{tone(n+i*.13,m,.5,"sawtooth",.16,{lp:2500,dest:d});bell(n+i*.13,m+12,.8,.15,d)})}}catch(e){}
+}
+function audioPanel(){
+  return `<div class="aup"><b>${t("snd")}</b>
+  <select onchange="setTrack(this.value)">${[["0",t("off")],["1",t("t1")],["2",t("t2")],["own",t("t3")]].map(x=>opt(x[0],x[1],AU.track)).join("")}</select>
+  ${AU.track==="own"?`<input type="file" accept="audio/*" onchange="ownFile(this)">`:""}
+  <label class="mu">${t("vm")}<input type="range" min="0" max="1" step="0.05" value="${AU.mv}" oninput="setMv(this.value)" onchange="saveAu()"></label>
+  <label class="mu">${t("vs")}<input type="range" min="0" max="1" step="0.05" value="${AU.sv}" oninput="setSv(this.value)" onchange="saveAu()"></label>
+  <div class="mu">${t("anote")}</div></div>`;
+}
+function bar(){return `<div class="bar"><div class="logo">⚔️ R-T-A</div><div style="display:flex;gap:8px;align-items:center"><button class="snd" onclick="togAu()" title="${t("snd")}">${AU.playing?"🔊":"🎵"}</button><div class="lang"><button class="${LG==="th"?"on":""}" onclick="setLang('th')">🇹🇭 ไทย</button><button class="${LG==="en"?"on":""}" onclick="setLang('en')">🇬🇧 EN</button></div></div></div>${AU.open?audioPanel():""}`}
+function pl(i){
+  const p=G.p[i],act=G.turn===i&&G.phase!=="over"&&!p.out,fx=G.phase==="result"&&G.fx;
+  const hit=fx&&(fx.t===i||fx.a===i),num=fx?(fx.t===i?fx.d:fx.a===i?2:0):0;
+  const hand=p.hand.map((k,j)=>{
+    const ok=act&&!G.sd&&(G.phase==="start"||G.phase==="attack")&&!(k==="double"&&G.phase!=="attack");
+    return `<button class="sp" title="${SPT[LG][k]}" ${ok?"":"disabled"} onclick="useSp(${j})">${SPD[k][0]} ${SPD[k][1]}</button>`}).join("");
+  const pc=p.hp/MAXHP*100,col=pc>50?"linear-gradient(90deg,#22c55e,#a3e635)":pc>25?"linear-gradient(90deg,#f59e0b,#fde047)":"linear-gradient(90deg,#ef4444,#f97316)";
+  return `<div class="pl ${act?"act":""} ${p.out?"out":""} ${hit?"hit":""}">${hit&&num?`<span class="fl">-${num}</span>`:""}<h3><span class="av">${p.out?"💀":AV[i%AV.length]}</span>${esc(p.name)}</h3>
+  <div class="hpbar"><i style="width:${pc}%;background:${col}"></i></div><b>❤️ ${p.hp}/${MAXHP}</b><span class="bd">${p.shield?"🛡️":""}${p.counter?"🔄":""}</span>
+  <div class="mu">${t("cmb",p.combo,p.best)}</div><div class="hand">${hand||`<span class="mu">${t("nosp")}</span>`}</div></div>`;
+}
+function render(){
+  const A=$("app");
+  if(G.phase==="intro"){
+    A.innerHTML=bar()+`<div class="hero"><h1 class="ttl">R-T-A<br><small>QUICK BATTLE</small></h1><div class="tag">Read → Translate → Attack!</div><p class="mu">${t("sub")}</p></div>
+    <div class="stage"><div style="max-width:360px;margin:0 auto;display:grid;gap:8px">
+    <select id="n">${[2,3,4,5,6].map(v=>opt(v,t("n",v),CFG.n)).join("")}</select>
+    <select id="hpx">${[15,20,25,30,35,40,45,50].map(v=>opt(v,`❤️ ${v} HP`+(HH[v]?" — "+HH[v][LG==="en"?1:0]:""),CFG.hp)).join("")}</select>
+    <select id="ct">${CTS.map(x=>opt(x[0],L(x),CFG.ct)).join("")}</select>
+    <select id="lv">${LVS.map(x=>opt(x[0],L(x),CFG.lv)).join("")}</select>
+    <select id="pz">${PZS.map(x=>opt(x[0],L(x),CFG.pz)).join("")}</select>
+    <select id="tm">${[10,15,20,30].map(v=>opt(v,t("tm",v),CFG.time)).join("")}</select></div>
+    <div class="rules">${t("rules")}</div><button onclick="toNames()">${t("next")}</button></div>`;return;
+  }
+  if(G.phase==="names"){
+    A.innerHTML=bar()+`<div class="stage"><h1>${t("namesH")}</h1><p class="mu">${esc(infoStr(CFG))}</p>
+    <div style="max-width:340px;margin:10px auto;display:grid;gap:8px">${[...Array(CFG.n)].map((_,i)=>`<input id="pn${i}" value="${esc(CFG.names[i]||t("pn",i+1))}" maxlength="14" placeholder="${esc(t("nph",i+1))}">`).join("")}</div>
+    <div class="row"><button class="gh" onclick="back()">${t("back")}</button><button onclick="go()">${t("start")}</button></div></div>`;return;
+  }
+  let st="";const p=me();
+  if(G.phase==="start")st=`<div class="big">${AV[G.turn%AV.length]} ${esc(t("turn",p.name))}</div><div class="mu">${G.sd?t("sdq"):"STEP 1 — Draw"}</div><div class="row"><button onclick="drawWord()">${t("draw")}</button></div>${G.sd?"":`<div class="mu" style="margin-top:8px">${t("sph")}</div>`}`;
+  if(G.phase==="word")st=`<div class="mu">${esc(t("s2",p.name,!!G.pz))}</div><div class="vcard"><div class="word" style="${G.pz?"letter-spacing:.1em":""}">${esc(G.pz&&!G.rev?G.pz:G.word[0])}</div>
+    <div class="th">${G.rev?esc(G.word[1]):""}</div></div><div class="tb"><i id="wt" class="${G.tl<=3?"low":""}" style="width:${G.tl*10}%"></i></div><div class="mu" id="wn">${G.tl} ${t("sec")}</div>
+    <div class="row">${G.pz&&!G.rev?"":`<button class="gh" onclick="speak()">${t("listen")}</button>`}<button class="gh" onclick="reveal()">${t("rev")}</button></div>
+    <div class="row"><button class="ok" onclick="judge(true)">${t("ok")}</button><button class="no" onclick="judge(false)">${t("no")}</button></div>`;
+  if(G.phase==="attack"){
+    const opps=alive().filter(i=>i!==G.turn);
+    if(!opps.includes(G.target))G.target=opps[0];
+    const tg=opps.length>1?`<div class="mu">${t("pick")}</div><div class="row">${opps.map(i=>`<button class="tg ${i===G.target?"on":"gh"}" onclick="setT(${i})">${AV[i%AV.length]} ${esc(G.p[i].name)} ❤️${G.p[i].hp}</button>`).join("")}</div>`:`<div class="mu">${esc(t("tg",G.p[opps[0]].name))}</div>`;
+    st=`<div class="big">${t("corr",p.combo||4)}</div><div class="mu">${G.bonus?t("bon",G.bonus):"STEP 3 — Attack"}</div>${tg}<div class="row"><button onclick="attack()">${t("datk")}</button></div><div class="mu" style="margin-top:8px">${t("dh")}</div>`;
+  }
+  if(G.phase==="result")st=`${resHtml()}<div class="row"><button onclick="endTurn()">${t("endt")}</button></div>`;
+  if(G.phase==="over")st=`<div class="trophy">🏆</div><div class="big">${esc(t("win",G.p[G.win].name))}</div><div class="mu">${esc(G.why.map(k=>t(k)).join(" — "))}</div><div class="row"><button onclick="again()">${t("again")}</button></div>`;
+  A.innerHTML=bar()+`<div class="top"><div class="mu">${esc(infoStr(G.cfg))}</div><div class="clock" id="gt"></div></div>
+  <div class="pls">${G.p.map((_,i)=>pl(i)).join("")}</div><div class="stage">${st}</div>
+  <div class="log">${G.log.map(([k,a])=>`<div>• ${esc(t(k,...a))}</div>`).join("")}</div>`;
+  clock();
+}
+document.documentElement.lang=LG;
+document.addEventListener('pointerdown',()=>{if(AU.track!=='0'&&!AU.playing)startMusic()},{once:true});
+render();
+</script>
+</body>
+</html>
